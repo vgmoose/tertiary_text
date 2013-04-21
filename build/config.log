@@ -1,0 +1,18 @@
+# project  configured on Sat Apr 20 22:30:18 2013 by
+# waf 1.7.0 (abi 98, python 20702f0 on darwin)
+# using ./waf configure
+#
+----------------------------------------
+Setting top to
+/Users/Ricky/Pebble/tertiary_text
+----------------------------------------
+Setting out to
+/Users/Ricky/Pebble/tertiary_text/build
+----------------------------------------
+Checking for program gcc,cc
+arm-none-eabi-gcc
+find program=['gcc', 'cc'] paths='' var='CC' -> 'arm-none-eabi-gcc'
+----------------------------------------
+Checking for program ar
+arm-none-eabi-ar
+find program=['ar'] paths='' var='AR' -> 'arm-none-eabi-ar'
