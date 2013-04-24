@@ -15,7 +15,7 @@ typedef enum {
 } ResourceId;
 static const ResBankVersion FONT_DEMO_RESOURCES = {
   .crc = 3541100955,
-  .timestamp = 1366785194,
+  .timestamp = 1366792936,
   .friendly_version = "0.1"
 };
 

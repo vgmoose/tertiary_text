@@ -1,12 +1,9 @@
-
-
 #include "pebble_os.h"
 #include "pebble_app.h"
 #include "pebble_fonts.h"
 
 #define MY_UUID { 0x71, 0xBB, 0xDC, 0xBD, 0xED, 0xB1, 0x44, 0xAD, 0xBA, 0x39, 0x4D, 0xB5, 0xBD, 0x5E, 0xE5, 0x69 }
 PBL_APP_INFO_SIMPLE(MY_UUID, "Tertiary Text", "VGMoose & CCiollar", 1 /* App version */);
-
 
 Window window;
 
@@ -18,33 +15,38 @@ TextLayer* bbuttons[] = {buttons1, buttons2, buttons3};
 
 bool menu = false;
 
-//char* threetext[] = {"a-i","j-q","r-z"};
+// the below three strings just have to be unique, abc - xyz will be overwritten with the long strings further below
 char* btext1[] = {"abc", "def", "ghi"};
 char* btext2[] = {"jkl", "m n", "opq"};
 char* btext3[] = {"rst", "uvw", "xyz"};
 char** btexts[] = {btext1, btext2, btext3};
 
+// These are the actual sets that are displayed on each button
 char set1[3] = "   ";
 char set2[3] = "   ";
 char set3[3] = "   ";
+
+int cur_set = 1;
+bool blackout = false;
 
 void drawSides();
 void drawMenu();
 
 char caps[] =    "ABCDEFGHIJKLM NOPQRSTUVWXYZ";
 char letters[] = "abcdefghijklm nopqrstuvwxyz";
-char numsym[] = "1234567890!?-'\"$()&*+%:@/,.";
+char numsym[] = "1234567890!?-'\"$()&*+#:@/,.";
 
 char* rotate_text[] = {caps, letters, numsym};
 void next();
 
 char* master = letters;
 
-char text_buffer[] = "                             ";
-int pos = 1;
+char text_buffer[40];
+int pos = 0;
 int top, end, size;
 
-void change_set(int s)
+// This function changes the next case/symbol set.
+void change_set(int s, bool lock)
 {
     int count = 0;
     master = rotate_text[s];
@@ -59,7 +61,10 @@ void change_set(int s)
             }
         }
     }
+    
     menu = false;
+    if (lock) cur_set = s;
+    
     next();
     drawSides();
 }
@@ -71,6 +76,13 @@ void next()
     size = 27;
 }
 
+void up_long_release_handler(ClickRecognizerRef recognizer, Window *window) {
+}
+void select_long_release_handler(ClickRecognizerRef recognizer, Window *window) {
+}
+void down_long_release_handler(ClickRecognizerRef recognizer, Window *window) {
+}
+
 // Modify these common button handlers
 void up_single_click_handler(ClickRecognizerRef recognizer, Window *window) {
   (void)recognizer;
@@ -78,7 +90,7 @@ void up_single_click_handler(ClickRecognizerRef recognizer, Window *window) {
     
     if (menu)
     {
-        change_set(0);
+        change_set(0, false);
         return;
     }
     
@@ -91,8 +103,10 @@ void up_single_click_handler(ClickRecognizerRef recognizer, Window *window) {
     {
         text_buffer[pos++] = master[top];
         text_layer_set_text(&textLayer, text_buffer);
+        change_set(cur_set, false);
         next();
     }
+        
     drawSides();
 }
 
@@ -101,7 +115,7 @@ void select_single_click_handler(ClickRecognizerRef recognizer, Window *window) 
   (void)window;
     if (menu)
     {
-        change_set(1);
+        change_set(1, false);
         return;
     }
     
@@ -115,6 +129,7 @@ void select_single_click_handler(ClickRecognizerRef recognizer, Window *window) 
     {
         text_buffer[pos++] = master[top+1];
         text_layer_set_text(&textLayer, text_buffer);
+        change_set(cur_set, false);
         next();
     }
     drawSides();
@@ -126,7 +141,7 @@ void down_single_click_handler(ClickRecognizerRef recognizer, Window *window) {
     
     if (menu)
     {
-        change_set(2);
+        change_set(2, false);
         return;
     }
     
@@ -139,6 +154,7 @@ void down_single_click_handler(ClickRecognizerRef recognizer, Window *window) {
     {
         text_buffer[pos++] = master[top+2];
         text_layer_set_text(&textLayer, text_buffer);
+        change_set(cur_set, false);
         next();
     }
     drawSides();
@@ -152,9 +168,19 @@ void select_long_click_handler(ClickRecognizerRef recognizer, Window *window) {
   (void)recognizer;
   (void)window;
     
-    text_buffer[--pos] = ' ';
-    text_layer_set_text(&textLayer, text_buffer);
-    next();
+    
+    if (menu)
+    {
+        change_set(1, true);
+        return;
+    }
+    
+    blackout = !blackout;
+
+    if (blackout)
+        text_layer_set_background_color(&textLayer, GColorBlack);
+    else
+         text_layer_set_background_color(&textLayer, GColorClear);
 
 }
 
@@ -163,10 +189,22 @@ void down_long_click_handler(ClickRecognizerRef recognizer, Window *window) {
     (void)recognizer;
     (void)window;
     
-    text_buffer[--pos] = ' ';
-    text_layer_set_text(&textLayer, text_buffer);
-    next();
-    drawSides();
+    if (menu)
+    {
+        change_set(2, true);
+        return;
+    }
+    
+    if (size==27)
+    {
+        text_buffer[--pos] = ' ';
+        text_layer_set_text(&textLayer, text_buffer);
+    }
+    else
+    {
+        next();
+        drawSides();
+    }
 
     
 }
@@ -180,6 +218,13 @@ void set_menu()
 void up_long_click_handler(ClickRecognizerRef recognizer, Window *window) {
     (void)recognizer;
     (void)window;
+    
+    if (menu)
+    {
+        cur_set = 0;
+        change_set(0, true);
+        return;
+    }
     
     set_menu();
     
@@ -195,15 +240,19 @@ void click_config_provider(ClickConfig **config, Window *window) {
     config[BUTTON_ID_SELECT]->click.repeat_interval_ms = 100;
 
   config[BUTTON_ID_SELECT]->long_click.handler = (ClickHandler) select_long_click_handler;
+    config[BUTTON_ID_SELECT]->long_click.release_handler = (ClickHandler) select_long_release_handler;
 
   config[BUTTON_ID_UP]->click.handler = (ClickHandler) up_single_click_handler;
   config[BUTTON_ID_UP]->click.repeat_interval_ms = 100;
     
     config[BUTTON_ID_UP]->long_click.handler = (ClickHandler) up_long_click_handler;
+    config[BUTTON_ID_UP]->long_click.release_handler = (ClickHandler) up_long_release_handler;
 
   config[BUTTON_ID_DOWN]->click.handler = (ClickHandler) down_single_click_handler;
   config[BUTTON_ID_DOWN]->click.repeat_interval_ms = 100;
     config[BUTTON_ID_DOWN]->long_click.handler = (ClickHandler) down_long_click_handler;
+    config[BUTTON_ID_DOWN]->long_click.release_handler = (ClickHandler) down_long_release_handler;
+
 }
 
 void drawMenu()
@@ -305,7 +354,7 @@ void handle_init(AppContextRef ctx) {
   text_layer_set_text(&textLayer, text_buffer);
     text_layer_set_background_color(&textLayer, GColorClear);
 
-  text_layer_set_font(&textLayer, fonts_get_system_font(FONT_KEY_GOTHAM_30_BLACK));
+  text_layer_set_font(&textLayer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
   layer_add_child(&window.layer, &textLayer.layer);
     
     initSides();
@@ -321,6 +370,6 @@ void pbl_main(void *params) {
   PebbleAppHandlers handlers = {
     .init_handler = &handle_init
   };
-    next();
+  change_set(1, true);
   app_event_loop(params, &handlers);
 }
