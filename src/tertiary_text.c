@@ -14,7 +14,9 @@ TextLayer textLayer;
 TextLayer buttons1[3];
 TextLayer buttons2[3];
 TextLayer buttons3[3];
+TextLayer* bbuttons[] = {buttons1, buttons2, buttons3};
 
+bool menu = false;
 
 //char* threetext[] = {"a-i","j-q","r-z"};
 char* btext1[] = {"abc", "def", "ghi"};
@@ -27,13 +29,40 @@ char set2[3] = "   ";
 char set3[3] = "   ";
 
 void drawSides();
+void drawMenu();
 
+char caps[] =    "ABCDEFGHIJKLM NOPQRSTUVWXYZ";
+char letters[] = "abcdefghijklm nopqrstuvwxyz";
+char numsym[] = "1234567890!?-'\"$()&*+%:@/,.";
 
-char master[] = "abcdefghijklm nopqrstuvwxyz";
+char* rotate_text[] = {caps, letters, numsym};
+void next();
+
+char* master = letters;
 
 char text_buffer[] = "                             ";
 int pos = 1;
 int top, end, size;
+
+void change_set(int s)
+{
+    int count = 0;
+    master = rotate_text[s];
+    for (int i=0; i<3; i++)
+    {
+        for (int j=0; j<3; j++)
+        {
+            for (int k=0; k<3; k++)
+            {
+                btexts[i][j][k] = master[count];
+                count++;
+            }
+        }
+    }
+    menu = false;
+    next();
+    drawSides();
+}
 
 void next()
 {
@@ -42,25 +71,16 @@ void next()
     size = 27;
 }
 
-void getText(int third)
-{
-//    btext[0] = master[
-    
-}
-
-void upThing()
-{
-//    for (int i=0; i<3; i++)
-//        text_layer_set_text(&buttons[i], btexts[0][i]);
-
-}
-
-
 // Modify these common button handlers
-
 void up_single_click_handler(ClickRecognizerRef recognizer, Window *window) {
   (void)recognizer;
   (void)window;
+    
+    if (menu)
+    {
+        change_set(0);
+        return;
+    }
     
     if (size > 3)
     {
@@ -79,6 +99,11 @@ void up_single_click_handler(ClickRecognizerRef recognizer, Window *window) {
 void select_single_click_handler(ClickRecognizerRef recognizer, Window *window) {
   (void)recognizer;
   (void)window;
+    if (menu)
+    {
+        change_set(1);
+        return;
+    }
     
     if (size > 3)
     {
@@ -98,6 +123,12 @@ void select_single_click_handler(ClickRecognizerRef recognizer, Window *window) 
 void down_single_click_handler(ClickRecognizerRef recognizer, Window *window) {
     (void)recognizer;
     (void)window;
+    
+    if (menu)
+    {
+        change_set(2);
+        return;
+    }
     
     if (size > 3)
     {
@@ -124,7 +155,6 @@ void select_long_click_handler(ClickRecognizerRef recognizer, Window *window) {
     text_buffer[--pos] = ' ';
     text_layer_set_text(&textLayer, text_buffer);
     next();
-    upThing();
 
 }
 
@@ -136,20 +166,22 @@ void down_long_click_handler(ClickRecognizerRef recognizer, Window *window) {
     text_buffer[--pos] = ' ';
     text_layer_set_text(&textLayer, text_buffer);
     next();
-    upThing();
     drawSides();
 
     
+}
+
+void set_menu()
+{
+    menu = true;
+    drawMenu();
 }
 
 void up_long_click_handler(ClickRecognizerRef recognizer, Window *window) {
     (void)recognizer;
     (void)window;
     
-    text_buffer[--pos] = ' ';
-    text_layer_set_text(&textLayer, text_buffer);
-    next();
-    upThing();
+    set_menu();
     
 }
 
@@ -174,45 +206,56 @@ void click_config_provider(ClickConfig **config, Window *window) {
     config[BUTTON_ID_DOWN]->long_click.handler = (ClickHandler) down_long_click_handler;
 }
 
+void drawMenu()
+{
+    text_layer_set_text(&buttons1[1], " ");
+    text_layer_set_text(&buttons1[2], " ");
+    
+    text_layer_set_text(&buttons2[1], " ");
+    text_layer_set_text(&buttons2[2], " ");
+    
+    text_layer_set_text(&buttons3[0], " ");
+    text_layer_set_text(&buttons3[2], " ");
+    
+    text_layer_set_text(&buttons1[0], "CAPS");
+    text_layer_set_font(&buttons1[0], fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
+    
+    text_layer_set_text(&buttons2[0], "small");
+    text_layer_set_font(&buttons2[0], fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
+    
+    text_layer_set_text(&buttons3[1], "num/sym");
+    text_layer_set_font(&buttons3[1], fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
 
-// Standard app initialisation
+}
 
+
+// This method draws the characters on the right side near the buttons
 void drawSides()
 {
-    if (size==27)
+    if (size==27) // first click (full size)
     {
-        for (int i=0; i<3; i++)
+        // update all 9 labels to their proper values
+        for (int h=0; h<3; h++)
         {
-//            text_layer_init(&buttons1[i], GRect(115, 12*i, 100, 100));
-            text_layer_set_text(&buttons1[i], btexts[0][i]);
-            text_layer_set_background_color(&buttons1[i], GColorClear);
-            text_layer_set_font(&buttons1[i], fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
-            layer_add_child(&window.layer, &buttons1[i].layer);
+            for (int i=0; i<3; i++)
+            {
+    //            text_layer_init(&buttons1[i], GRect(115, 12*i, 100, 100));
+                text_layer_set_text(&bbuttons[h][i], btexts[h][i]);
+                text_layer_set_background_color(&bbuttons[h][i], GColorClear);
+                text_layer_set_font(&bbuttons[h][i], fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
+                layer_add_child(&window.layer, &bbuttons[h][i].layer);
+            }
+
         }
-        
-        for (int i=0; i<3; i++)
-        {
-//            text_layer_init(&buttons2[i], GRect(115, 12*i+50, 100, 100));
-            text_layer_set_text(&buttons2[i], btexts[1][i]);
-            text_layer_set_background_color(&buttons2[i], GColorClear);
-            text_layer_set_font(&buttons2[i], fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
-            layer_add_child(&window.layer, &buttons2[i].layer);
-        }
-        
-        for (int i=0; i<3; i++)
-        {
-//            text_layer_init(&buttons3[i], GRect(115, 12*i+100, 100, 100));
-            text_layer_set_text(&buttons3[i], btexts[2][i]);
-            text_layer_set_background_color(&buttons3[i], GColorClear);
-            text_layer_set_font(&buttons3[i], fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
-            layer_add_child(&window.layer, &buttons3[i].layer);
-        }
-    } else if (size==9)
+    }
+    else if (size==9)   // second click
     {
         text_layer_set_text(&buttons1[1], " ");
         text_layer_set_text(&buttons1[2], " ");
+        
         text_layer_set_text(&buttons2[1], " ");
         text_layer_set_text(&buttons2[2], " ");
+        
         text_layer_set_text(&buttons3[0], " ");
         text_layer_set_text(&buttons3[2], " ");
 
@@ -235,10 +278,7 @@ void drawSides()
         text_layer_set_text(&buttons1[0], set1);
         text_layer_set_text(&buttons2[0], set2);
         text_layer_set_text(&buttons3[1], set3);
-//        text_layer_set_font(&buttons1[0], fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
-//        text_layer_set_font(&buttons2[0], fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
-//        text_layer_set_font(&buttons3[1], fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
-    }
+    } 
     
 }
 
@@ -271,8 +311,6 @@ void handle_init(AppContextRef ctx) {
     initSides();
     drawSides();
     
-//    doThing();
-
   // Attach our desired button functionality
   window_set_click_config_provider(&window, (ClickConfigProvider) click_config_provider);
     
