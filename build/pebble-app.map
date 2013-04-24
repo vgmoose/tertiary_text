@@ -49,25 +49,25 @@ LOAD /Users/Ricky/pebble-dev/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.6.3/thu
  .text          0x000000000000007c       0x68 /Users/Ricky/pebble-dev/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.6.3/thumb2/crtbegin.o
  .text          0x00000000000000e4      0xbc8 src/tertiary_text.c.1.o
                 0x00000000000000e4                change_set
-                0x00000000000001b8                next
-                0x00000000000001f4                up_long_release_handler
-                0x0000000000000208                select_long_release_handler
-                0x000000000000021c                down_long_release_handler
-                0x0000000000000230                clickButton
-                0x0000000000000390                up_single_click_handler
-                0x00000000000003ac                select_single_click_handler
-                0x00000000000003c8                down_single_click_handler
-                0x00000000000003e4                common_long
-                0x0000000000000418                up_long_click_handler
-                0x0000000000000440                select_long_click_handler
-                0x00000000000004b8                down_long_click_handler
-                0x0000000000000564                set_menu
-                0x0000000000000590                click_config_provider
-                0x0000000000000670                drawMenu
-                0x0000000000000744                drawSides
-                0x00000000000009c0                initSidesAndText
-                0x0000000000000ba8                handle_init
-                0x0000000000000c64                pbl_main
+                0x00000000000001b4                next
+                0x00000000000001f0                up_long_release_handler
+                0x0000000000000204                select_long_release_handler
+                0x0000000000000218                down_long_release_handler
+                0x000000000000022c                clickButton
+                0x000000000000038c                up_single_click_handler
+                0x00000000000003a8                select_single_click_handler
+                0x00000000000003c4                down_single_click_handler
+                0x00000000000003e0                common_long
+                0x0000000000000414                up_long_click_handler
+                0x000000000000043c                select_long_click_handler
+                0x00000000000004b4                down_long_click_handler
+                0x0000000000000560                set_menu
+                0x000000000000058c                click_config_provider
+                0x000000000000066c                drawMenu
+                0x0000000000000740                drawSides
+                0x00000000000009bc                initSidesAndText
+                0x0000000000000ba4                handle_init
+                0x0000000000000c60                pbl_main
  .text          0x0000000000000cac      0xb8c /Users/Ricky/Pebble/tertiary_text/lib/libpebble.a(tmpE96Sgtpebble_os.o)
                 0x0000000000000cac                animation_init
                 0x0000000000000cb8                animation_set_delay
@@ -423,10 +423,10 @@ OUTPUT(/Users/Ricky/Pebble/tertiary_text/build/pebble-app.elf elf32-littlearm)
  .debug_line    0x0000000000000071      0x33f src/tertiary_text.c.1.o
  .debug_line    0x00000000000003b0       0x75 /Users/Ricky/pebble-dev/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.6.3/thumb2/crtn.o
 
-.debug_info     0x0000000000000000     0x198b
+.debug_info     0x0000000000000000     0x198a
  .debug_info    0x0000000000000000       0xb2 /Users/Ricky/pebble-dev/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.6.3/thumb2/crti.o
- .debug_info    0x00000000000000b2     0x1827 src/tertiary_text.c.1.o
- .debug_info    0x00000000000018d9       0xb2 /Users/Ricky/pebble-dev/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.6.3/thumb2/crtn.o
+ .debug_info    0x00000000000000b2     0x1826 src/tertiary_text.c.1.o
+ .debug_info    0x00000000000018d8       0xb2 /Users/Ricky/pebble-dev/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.6.3/thumb2/crtn.o
 
 .debug_abbrev   0x0000000000000000      0x2d2
  .debug_abbrev  0x0000000000000000       0x12 /Users/Ricky/pebble-dev/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.6.3/thumb2/crti.o

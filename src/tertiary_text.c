@@ -76,7 +76,6 @@ void change_set(int s, bool lock)
     menu = false;
     if (lock) cur_set = s;
     
-    next();
     drawSides();
 }
 
@@ -343,5 +342,6 @@ void pbl_main(void *params) {
     .init_handler = &handle_init
   };
   change_set(1, true);
+  next();
   app_event_loop(params, &handlers);
 }
