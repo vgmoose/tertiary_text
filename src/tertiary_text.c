@@ -5,9 +5,15 @@
 #define MY_UUID { 0x71, 0xBB, 0xDC, 0xBD, 0xED, 0xB1, 0x44, 0xAD, 0xBA, 0x39, 0x4D, 0xB5, 0xBD, 0x5E, 0xE5, 0x69 }
 PBL_APP_INFO_SIMPLE(MY_UUID, "Tertiary Text", "VGMoose & CCiollar", 1 /* App version */);
 
+#define TOP 0
+#define MID 1
+#define BOT 2
+
 Window window;
 
 TextLayer textLayer;
+TextLayer wordsYouWrite;
+
 TextLayer buttons1[3];
 TextLayer buttons2[3];
 TextLayer buttons3[3];
@@ -15,7 +21,12 @@ TextLayer* bbuttons[] = {buttons1, buttons2, buttons3};
 
 bool menu = false;
 
-// the below three strings just have to be unique, abc - xyz will be overwritten with the long strings further below
+// Here are the three cases, or sets
+char caps[] =    "ABCDEFGHIJKLM NOPQRSTUVWXYZ";
+char letters[] = "abcdefghijklm nopqrstuvwxyz";
+char numsym[] = "1234567890!?-'\"$()&*+#:@/,.";
+
+// the below three strings just have to be unique, abc - xyz will be overwritten with the long strings above
 char* btext1[] = {"abc", "def", "ghi"};
 char* btext2[] = {"jkl", "m n", "opq"};
 char* btext3[] = {"rst", "uvw", "xyz"};
@@ -31,10 +42,7 @@ bool blackout = false;
 
 void drawSides();
 void drawMenu();
-
-char caps[] =    "ABCDEFGHIJKLM NOPQRSTUVWXYZ";
-char letters[] = "abcdefghijklm nopqrstuvwxyz";
-char numsym[] = "1234567890!?-'\"$()&*+#:@/,.";
+void set_menu();
 
 char* rotate_text[] = {caps, letters, numsym};
 void next();
@@ -76,11 +84,45 @@ void next()
     size = 27;
 }
 
-void up_long_release_handler(ClickRecognizerRef recognizer, Window *window) {
-}
-void select_long_release_handler(ClickRecognizerRef recognizer, Window *window) {
-}
-void down_long_release_handler(ClickRecognizerRef recognizer, Window *window) {
+// These are to prevent missed clicks on a hold
+void up_long_release_handler(ClickRecognizerRef recognizer, Window *window) {}
+void select_long_release_handler(ClickRecognizerRef recognizer, Window *window) {}
+void down_long_release_handler(ClickRecognizerRef recognizer, Window *window) {}
+
+void clickButton(int b)
+{
+    if (!blackout)
+    {
+        if (menu)
+        {
+            change_set(b, false);
+            return;
+        }
+        
+        if (size > 3)
+        {
+            size /= 3;
+            if (b == TOP)
+                end -= 2*size;
+            else if (b == MID)
+            {
+                top += size;
+                end -= size;
+            }
+            else if (b == BOT)
+                top += 2*size;
+        }
+        else
+        {
+            text_buffer[pos++] = master[top+b];
+            text_layer_set_text(&wordsYouWrite, text_buffer);
+            change_set(cur_set, false);
+            next();
+        }
+    
+        drawSides();
+    }
+    
 }
 
 // Modify these common button handlers
@@ -88,92 +130,49 @@ void up_single_click_handler(ClickRecognizerRef recognizer, Window *window) {
   (void)recognizer;
   (void)window;
     
-    if (menu)
-    {
-        change_set(0, false);
-        return;
-    }
-    
-    if (size > 3)
-    {
-        size /= 3;
-        end -= 2*size;
-    }
-    else
-    {
-        text_buffer[pos++] = master[top];
-        text_layer_set_text(&textLayer, text_buffer);
-        change_set(cur_set, false);
-        next();
-    }
-        
-    drawSides();
+    clickButton(TOP);
+   
 }
 
 void select_single_click_handler(ClickRecognizerRef recognizer, Window *window) {
   (void)recognizer;
   (void)window;
-    if (menu)
-    {
-        change_set(1, false);
-        return;
-    }
-    
-    if (size > 3)
-    {
-        size /= 3;
-        end -= size;
-        top += size;
-    }
-    else
-    {
-        text_buffer[pos++] = master[top+1];
-        text_layer_set_text(&textLayer, text_buffer);
-        change_set(cur_set, false);
-        next();
-    }
-    drawSides();
+   
+    clickButton(MID);
 }
 
 void down_single_click_handler(ClickRecognizerRef recognizer, Window *window) {
     (void)recognizer;
     (void)window;
     
-    if (menu)
-    {
-        change_set(2, false);
-        return;
-    }
-    
-    if (size > 3)
-    {
-        size /= 3;
-        top += 2*size;
-    }
-    else
-    {
-        text_buffer[pos++] = master[top+2];
-        text_layer_set_text(&textLayer, text_buffer);
-        change_set(cur_set, false);
-        next();
-    }
-    drawSides();
-
-    
-    
+    clickButton(BOT);
 }
 
+bool common_long(int b)
+{
+    if (menu)
+    {
+        change_set(b, true);
+        return true;
+    }
+    return false;
+}
+
+void up_long_click_handler(ClickRecognizerRef recognizer, Window *window) {
+    (void)recognizer;
+    (void)window;
+    
+    if (common_long(TOP)) return;
+    
+    set_menu();
+    
+}
 
 void select_long_click_handler(ClickRecognizerRef recognizer, Window *window) {
   (void)recognizer;
   (void)window;
     
-    
-    if (menu)
-    {
-        change_set(1, true);
-        return;
-    }
+    if (common_long(MID)) return;
     
     blackout = !blackout;
 
@@ -189,16 +188,14 @@ void down_long_click_handler(ClickRecognizerRef recognizer, Window *window) {
     (void)recognizer;
     (void)window;
     
-    if (menu)
-    {
-        change_set(2, true);
-        return;
-    }
+    if (common_long(BOT)) return;
     
-    if (size==27)
+    // delete or cancel when back is held
+    
+    if (size==27 && pos>0 && !blackout)
     {
         text_buffer[--pos] = ' ';
-        text_layer_set_text(&textLayer, text_buffer);
+        text_layer_set_text(&wordsYouWrite, text_buffer);
     }
     else
     {
@@ -206,30 +203,16 @@ void down_long_click_handler(ClickRecognizerRef recognizer, Window *window) {
         drawSides();
     }
 
-    
 }
 
 void set_menu()
 {
-    menu = true;
-    drawMenu();
-}
-
-void up_long_click_handler(ClickRecognizerRef recognizer, Window *window) {
-    (void)recognizer;
-    (void)window;
-    
-    if (menu)
+    if (!blackout)
     {
-        cur_set = 0;
-        change_set(0, true);
-        return;
+        menu = true;
+        drawMenu();
     }
-    
-    set_menu();
-    
 }
-
 
 // This usually won't need to be modified
 
@@ -266,13 +249,13 @@ void drawMenu()
     text_layer_set_text(&buttons3[0], " ");
     text_layer_set_text(&buttons3[2], " ");
     
-    text_layer_set_text(&buttons1[0], "CAPS");
+    text_layer_set_text(&buttons1[0], "CAP");
     text_layer_set_font(&buttons1[0], fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
     
-    text_layer_set_text(&buttons2[0], "small");
+    text_layer_set_text(&buttons2[0], "lower");
     text_layer_set_font(&buttons2[0], fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
     
-    text_layer_set_text(&buttons3[1], "num/sym");
+    text_layer_set_text(&buttons3[1], "num\nsym");
     text_layer_set_font(&buttons3[1], fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
 
 }
@@ -292,7 +275,6 @@ void drawSides()
                 text_layer_set_text(&bbuttons[h][i], btexts[h][i]);
                 text_layer_set_background_color(&bbuttons[h][i], GColorClear);
                 text_layer_set_font(&bbuttons[h][i], fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
-                layer_add_child(&window.layer, &bbuttons[h][i].layer);
             }
 
         }
@@ -331,14 +313,24 @@ void drawSides()
     
 }
 
-void initSides()
+void initSidesAndText()
 {
+    text_layer_init(&wordsYouWrite, GRect(10, 0, 100, 135));
+    text_layer_set_background_color(&wordsYouWrite, GColorClear);
+    text_layer_set_font(&wordsYouWrite, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+    layer_add_child(&window.layer, &wordsYouWrite.layer);
+
+
     for (int i = 0; i<3; i++)
     {
         text_layer_init(&buttons1[i], GRect(115, 12*i, 100, 100));
         text_layer_init(&buttons2[i], GRect(115, 12*i+50, 100, 100));
         text_layer_init(&buttons3[i], GRect(115, 12*i+100, 100, 100));
     }
+    
+    for (int i=0; i<3; i++)
+        for (int j=0; j<3; j++)
+            layer_add_child(&window.layer, &bbuttons[i][j].layer);
 
 }
 
@@ -351,13 +343,13 @@ void handle_init(AppContextRef ctx) {
   resource_init_current_app(&FONT_DEMO_RESOURCES);
 
   text_layer_init(&textLayer, window.layer.frame);
-  text_layer_set_text(&textLayer, text_buffer);
+//  text_layer_set_text(&textLayer, text_buffer);
     text_layer_set_background_color(&textLayer, GColorClear);
 
   text_layer_set_font(&textLayer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
   layer_add_child(&window.layer, &textLayer.layer);
     
-    initSides();
+    initSidesAndText();
     drawSides();
     
   // Attach our desired button functionality
