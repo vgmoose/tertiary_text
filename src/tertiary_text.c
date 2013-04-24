@@ -32,10 +32,13 @@ char* btext2[] = {"jkl", "m n", "opq"};
 char* btext3[] = {"rst", "uvw", "xyz"};
 char** btexts[] = {btext1, btext2, btext3};
 
-// These are the actual sets that are displayed on each button
-char set1[3] = "   ";
-char set2[3] = "   ";
-char set3[3] = "   ";
+// These are the actual sets that are displayed on each button, also need to be unique
+char set1[3] = "  a";
+char set2[3] = "  b";
+char set3[3] = "  c";
+char* setlist[] = {set1, set2, set3};
+
+char* cases[] = {"CAP", "low", "#@1"};
 
 int cur_set = 1;
 bool blackout = false;
@@ -49,7 +52,7 @@ void next();
 
 char* master = letters;
 
-char text_buffer[40];
+char text_buffer[60];
 int pos = 0;
 int top, end, size;
 
@@ -218,21 +221,19 @@ void set_menu()
 
 void click_config_provider(ClickConfig **config, Window *window) {
   (void)window;
-
-  config[BUTTON_ID_SELECT]->click.handler = (ClickHandler) select_single_click_handler;
-    config[BUTTON_ID_SELECT]->click.repeat_interval_ms = 100;
-
-  config[BUTTON_ID_SELECT]->long_click.handler = (ClickHandler) select_long_click_handler;
-    config[BUTTON_ID_SELECT]->long_click.release_handler = (ClickHandler) select_long_release_handler;
-
-  config[BUTTON_ID_UP]->click.handler = (ClickHandler) up_single_click_handler;
-  config[BUTTON_ID_UP]->click.repeat_interval_ms = 100;
     
+    config[BUTTON_ID_UP]->click.handler = (ClickHandler) up_single_click_handler;
+    config[BUTTON_ID_UP]->click.repeat_interval_ms = 100;
     config[BUTTON_ID_UP]->long_click.handler = (ClickHandler) up_long_click_handler;
     config[BUTTON_ID_UP]->long_click.release_handler = (ClickHandler) up_long_release_handler;
-
-  config[BUTTON_ID_DOWN]->click.handler = (ClickHandler) down_single_click_handler;
-  config[BUTTON_ID_DOWN]->click.repeat_interval_ms = 100;
+    
+    config[BUTTON_ID_SELECT]->click.handler = (ClickHandler) select_single_click_handler;
+    config[BUTTON_ID_SELECT]->click.repeat_interval_ms = 100;
+    config[BUTTON_ID_SELECT]->long_click.handler = (ClickHandler) select_long_click_handler;
+    config[BUTTON_ID_SELECT]->long_click.release_handler = (ClickHandler) select_long_release_handler;
+    
+    config[BUTTON_ID_DOWN]->click.handler = (ClickHandler) down_single_click_handler;
+    config[BUTTON_ID_DOWN]->click.repeat_interval_ms = 100;
     config[BUTTON_ID_DOWN]->long_click.handler = (ClickHandler) down_long_click_handler;
     config[BUTTON_ID_DOWN]->long_click.release_handler = (ClickHandler) down_long_release_handler;
 
@@ -240,24 +241,14 @@ void click_config_provider(ClickConfig **config, Window *window) {
 
 void drawMenu()
 {
-    text_layer_set_text(&buttons1[1], " ");
-    text_layer_set_text(&buttons1[2], " ");
-    
-    text_layer_set_text(&buttons2[1], " ");
-    text_layer_set_text(&buttons2[2], " ");
-    
-    text_layer_set_text(&buttons3[0], " ");
-    text_layer_set_text(&buttons3[2], " ");
-    
-    text_layer_set_text(&buttons1[0], "CAP");
-    text_layer_set_font(&buttons1[0], fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
-    
-    text_layer_set_text(&buttons2[0], "lower");
-    text_layer_set_font(&buttons2[0], fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
-    
-    text_layer_set_text(&buttons3[1], "num\nsym");
-    text_layer_set_font(&buttons3[1], fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
-
+    for (int i=0; i<3; i++)
+    {
+        text_layer_set_text(&bbuttons[i][i!=2], " ");
+        text_layer_set_text(&bbuttons[i][2], " ");
+        
+        text_layer_set_text(&bbuttons[i][i==2], cases[i]);
+        text_layer_set_font(&bbuttons[i][0], fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
+    }
 }
 
 
@@ -271,7 +262,6 @@ void drawSides()
         {
             for (int i=0; i<3; i++)
             {
-    //            text_layer_init(&buttons1[i], GRect(115, 12*i, 100, 100));
                 text_layer_set_text(&bbuttons[h][i], btexts[h][i]);
                 text_layer_set_background_color(&bbuttons[h][i], GColorClear);
                 text_layer_set_font(&bbuttons[h][i], fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
@@ -281,41 +271,31 @@ void drawSides()
     }
     else if (size==9)   // second click
     {
-        text_layer_set_text(&buttons1[1], " ");
-        text_layer_set_text(&buttons1[2], " ");
         
-        text_layer_set_text(&buttons2[1], " ");
-        text_layer_set_text(&buttons2[2], " ");
-        
-        text_layer_set_text(&buttons3[0], " ");
-        text_layer_set_text(&buttons3[2], " ");
-
-//            text_layer_init(&buttons1[0], GRect(111, 5, 100, 100));
-            text_layer_set_text(&buttons1[0], btexts[top/9][0]);
-            text_layer_set_font(&buttons1[0], fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
-        
-        text_layer_set_text(&buttons2[0], btexts[top/9][1]);
-        text_layer_set_font(&buttons2[0], fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
-        
-        text_layer_set_text(&buttons3[1], btexts[top/9][2]);
-        text_layer_set_font(&buttons3[1], fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
-        
+        for (int i=0; i<3; i++)
+        {
+            text_layer_set_text(&bbuttons[i][i!=2], " ");
+            text_layer_set_text(&bbuttons[i][2], " ");
+            
+            text_layer_set_text(&bbuttons[i][i==2], btexts[top/9][i]);
+            text_layer_set_font(&bbuttons[i][i==2], fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
+        }
+                
     } else if (size == 3)
     {
-        set1[2] = master[top];
-        set2[2] = master[top+1];
-        set3[2] = master[top+2];
-        
-        text_layer_set_text(&buttons1[0], set1);
-        text_layer_set_text(&buttons2[0], set2);
-        text_layer_set_text(&buttons3[1], set3);
+        for (int i=0; i<3; i++)
+        {
+            setlist[i][2] = master[top+i];
+            text_layer_set_text(&bbuttons[i][i==2], setlist[i]);
+
+        }
     } 
     
 }
 
 void initSidesAndText()
 {
-    text_layer_init(&wordsYouWrite, GRect(10, 0, 100, 135));
+    text_layer_init(&wordsYouWrite, GRect(10, 0, 100, 150));
     text_layer_set_background_color(&wordsYouWrite, GColorClear);
     text_layer_set_font(&wordsYouWrite, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
     layer_add_child(&window.layer, &wordsYouWrite.layer);
