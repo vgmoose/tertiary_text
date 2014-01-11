@@ -1,0 +1,17 @@
+{
+  "uuid": "71bbdcbd-edb1-44ad-ba39-4db5bd5ee569",
+  "shortName": "tertiary_text",
+  "longName": "Tertiary Text",
+  "companyName": "VGMoose",
+  "versionCode": 2,
+  "versionLabel": "2.0.0",
+  "watchapp": {
+    "watchface": false
+  },
+  "appKeys": {
+    "dummy": 0
+  },
+  "resources": {
+    "media": []
+  }
+}
