@@ -22,15 +22,15 @@ static char letters[] = "abcdefghijklm nopqrstuvwxyz";
 static char numsym[] = "1234567890!?-'\"$()&*+#:@/,.";
 
 // the below three strings just have to be unique, abc - xyz will be overwritten with the long strings above
-static char* btext1[] = {"abc", "def", "ghi"};
-static char* btext2[] = {"jkl", "m n", "opq"};
-static char* btext3[] = {"rst", "uvw", "xyz"};
+static char* btext1[] = {"abc\0", "def\0", "ghi\0"};
+static char* btext2[] = {"jkl\0", "m n\0", "opq\0"};
+static char* btext3[] = {"rst\0", "uvw\0", "xyz\0"};
 static char** btexts[] = {btext1, btext2, btext3};
 
 // These are the actual sets that are displayed on each button, also need to be unique
-static char set1[3] = "  a";
-static char set2[3] = "  b";
-static char set3[3] = "  c";
+static char set1[4] = "  a\0";
+static char set2[4] = "  b\0";
+static char set3[4] = "  c\0";
 static char* setlist[] = {set1, set2, set3};
 
 static char* cases[] = {"CAP", "low", "#@1"};
