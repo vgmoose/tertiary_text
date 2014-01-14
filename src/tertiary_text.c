@@ -342,6 +342,7 @@ int main(void) {
 //    };
     change_set(1, true);
     next();
+    drawSides();
     app_event_loop();
     deinit();
 }
