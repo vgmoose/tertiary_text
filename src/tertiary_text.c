@@ -4,6 +4,9 @@
 #define MID 1
 #define BOT 2
 
+#define NOTEPAD_TEXT 1
+#define NOTEPAD_CHAR_COUNT 2
+
 static Window* window;
 
 static TextLayer* text_layer;
@@ -41,6 +44,8 @@ static bool blackout = false;
 static void drawSides();
 static void drawMenu();
 static void set_menu();
+static void drawNotepadText();
+
 
 static char* rotate_text[] = {caps, letters, numsym};
 static void next();
@@ -111,7 +116,7 @@ static void clickButton(int b)
         else
         {
             text_buffer[pos++] = master[top+b];
-            text_layer_set_text(wordsYouWrite, text_buffer);
+            drawNotepadText();
             change_set(cur_set, false);
             next();
         }
@@ -160,12 +165,23 @@ static void select_long_click_handler(ClickRecognizerRef recognizer, void* conte
     
     if (common_long(MID)) return;
     
-    blackout = !blackout;
+//    blackout = !blackout;
+//    
+//    if (blackout)
+//    text_layer_set_background_color(text_layer, GColorBlack);
+//    else
+//    text_layer_set_background_color(text_layer, GColorClear);
     
-    if (blackout)
-    text_layer_set_background_color(text_layer, GColorBlack);
-    else
-    text_layer_set_background_color(text_layer, GColorClear);
+    // clear the string
+    pos = 0;
+    for (int i=0; i<60; i++)
+        text_buffer[i] = ' ';
+    
+    drawNotepadText();
+    change_set(cur_set, false);
+    
+    next();
+    drawSides();
     
 }
 
@@ -179,7 +195,7 @@ static void down_long_click_handler(ClickRecognizerRef recognizer, void* context
     if (size==27 && pos>0 && !blackout)
     {
         text_buffer[--pos] = ' ';
-        text_layer_set_text(wordsYouWrite, text_buffer);
+        drawNotepadText();
     }
     else
     {
@@ -289,7 +305,16 @@ static void initSidesAndText()
     
 }
 
+static void drawNotepadText()
+{
+    text_layer_set_text(wordsYouWrite, text_buffer);
+}
+
 static void deinit(void) {
+    text_buffer[pos] = '\0';
+    persist_write_string(NOTEPAD_TEXT, text_buffer);
+    persist_write_int(NOTEPAD_CHAR_COUNT, pos);
+    
     window_destroy(window);
 }
 
@@ -321,6 +346,11 @@ static void window_load(Window* window)
 static void init(void) {
     window = window_create();
     
+    pos = persist_exists(NOTEPAD_CHAR_COUNT) ? persist_read_int(NOTEPAD_CHAR_COUNT) : 0;
+    
+    if (persist_exists(NOTEPAD_TEXT))
+        persist_read_string(NOTEPAD_TEXT, text_buffer, pos+1);
+    
     window_set_click_config_provider(window, click_config_provider);
     window_set_window_handlers(window, (WindowHandlers) {
         .load = window_load,
@@ -343,6 +373,8 @@ int main(void) {
     change_set(1, true);
     next();
     drawSides();
+    drawNotepadText();
+    
     app_event_loop();
     deinit();
 }
