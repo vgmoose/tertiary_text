@@ -22,6 +22,7 @@ Of course there are more than the 26 lower case letters that need to be typed, a
 Visit the offical project page [here](http://vgmoose.com/pebble/) for official Tertiary Text downloads and .pbw files.
 
 ### Applications
+- [Pebble Translator](http://pblweb.com/appstore/532000f7237858d2500001b1/) by [**Patrick Balestra**](http://www.patrickbalestra.com/)
 - [Pebble Communicator](https://play.google.com/store/apps/details?id=pt.joaopluis.communicator) by **João Luís**
 - [1.x] [Pebble Messenger](http://forums.getpebble.com/discussion/7954/android-pebble-messenger-whatsapp-sms-quick-responses-typing) by **maveok**
 - [1.x] [Formula Calculator](http://forums.getpebble.com/discussion/5285/watch-app-formula-calculator) by **moridh**
