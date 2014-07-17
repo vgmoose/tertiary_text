@@ -18,6 +18,12 @@ Of course there are more than the 26 lower case letters that need to be typed, a
 
 ![Holding for more things](https://raw.github.com/vgmoose/tertiary_text/master/docs/pebuse.png)![Holding for more things](https://raw.github.com/vgmoose/tertiary_text/master/docs/pebcaps.png)![Holding for more things](https://raw.github.com/vgmoose/tertiary_text/master/docs/peblow.png)![Holding for more things](https://raw.github.com/vgmoose/tertiary_text/master/docs/pebnum.png)
 
+### Contributing
+I'm open to any and all contributions! I very much want Tertiary Text to
+become as easy-to-use as possible to allow any Pebble app to integrate their
+own keyboard without making a big deal out of it. If you see literally any
+change at all, feel free to make a pull request.
+
 ### Download
 Visit the offical project page [here](http://vgmoose.com/pebble/) for official Tertiary Text downloads and .pbw files.
 
