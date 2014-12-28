@@ -1,4 +1,3 @@
-#include <pebble.h>
 #include "tertiary_text.h"
 
 #define TOP 0
@@ -56,9 +55,11 @@ static char text_buffer[60];
 static int pos = 0;
 static int top, end, size;
 
-static char* title;
+static const char* title;
 static void* extra;
-static TertiaryTextCabllack callback;
+static TertiaryTextCallback callback;
+
+static const bool animated = true;
 
 // This function changes the next case/symbol set.
 static void change_set(int s, bool lock)
@@ -173,7 +174,7 @@ static void select_long_click_handler(ClickRecognizerRef recognizer, void* conte
    	callback( text_buffer, strlen( text_buffer ), extra ); 
 
 	// Close this window
-	window_stack_pop();
+	window_stack_pop( animated );
 }
 
 
@@ -308,7 +309,7 @@ static void window_unload(Window *window)
 
 	for( uint8_t x = 0; x < 3; x++ )
 		for( uint8_t y = 0; y < 3; y++ )
-			text_layer_destroy( bbutons[ x ][ y ] );
+			text_layer_destroy( bbuttons[ x ][ y ] );
 
     window_destroy(window);
 }
@@ -336,9 +337,9 @@ static void window_load(Window* window)
 
 void tertiary_text_prompt( const char* _title, TertiaryTextCallback _callback, void* _extra )
 {
-	title = _title;
-	extra = _extra;
-	callback = _callback;
+		title = _title;
+		extra = _extra;
+		callback = _callback;
 
     bbuttons[0] = buttons1;
     bbuttons[1] = buttons2;
@@ -353,8 +354,6 @@ void tertiary_text_prompt( const char* _title, TertiaryTextCallback _callback, v
         .unload = window_unload,
     });
     
-    const bool animated = true;
-
     window_stack_push(window, animated);
 
     change_set(1, true);
