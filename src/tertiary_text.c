@@ -157,12 +157,13 @@ static void up_long_click_handler(ClickRecognizerRef recognizer, void* context)
 static void select_long_click_handler(ClickRecognizerRef recognizer, void* context)
 {   
   if (common_long(MID)) return;
+  
+  // Close this window
+  window_stack_pop( animated );
     
-	// Call user supplied callback with text_buffer
+  // Call user supplied callback with text_buffer
   callback( text_buffer, strlen( text_buffer ), extra ); 
 
-	// Close this window
-	window_stack_pop( animated );
 }
 
 
