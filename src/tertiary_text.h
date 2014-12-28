@@ -1,3 +1,5 @@
+#include <pebble.h>
+
 // A callback which is called when a user submits data
 //
 // Params:
