@@ -1,4 +1,5 @@
 #include <pebble.h>
+#include "tertiary_text.h"
 
 #define TOP 0
 #define MID 1
@@ -46,7 +47,6 @@ static void drawMenu();
 static void set_menu();
 static void drawNotepadText();
 
-
 static char* rotate_text[] = {caps, letters, numsym};
 static void next();
 
@@ -55,6 +55,10 @@ static char* master = letters;
 static char text_buffer[60];
 static int pos = 0;
 static int top, end, size;
+
+static char* title;
+static void* extra;
+static TertiaryTextCabllack callback;
 
 // This function changes the next case/symbol set.
 static void change_set(int s, bool lock)
@@ -165,24 +169,11 @@ static void select_long_click_handler(ClickRecognizerRef recognizer, void* conte
     
     if (common_long(MID)) return;
     
-//    blackout = !blackout;
-//    
-//    if (blackout)
-//    text_layer_set_background_color(text_layer, GColorBlack);
-//    else
-//    text_layer_set_background_color(text_layer, GColorClear);
-    
-    // clear the string
-    pos = 0;
-    for (int i=0; i<60; i++)
-        text_buffer[i] = ' ';
-    
-    drawNotepadText();
-    change_set(cur_set, false);
-    
-    next();
-    drawSides();
-    
+	// Call user supplied callback with text_buffer
+   	callback( text_buffer, strlen( text_buffer ), extra ); 
+
+	// Close this window
+	window_stack_pop();
 }
 
 
@@ -310,16 +301,16 @@ static void drawNotepadText()
     text_layer_set_text(wordsYouWrite, text_buffer);
 }
 
-static void deinit(void) {
-    text_buffer[pos] = '\0';
-    persist_write_string(NOTEPAD_TEXT, text_buffer);
-    persist_write_int(NOTEPAD_CHAR_COUNT, pos);
-    
-    window_destroy(window);
-}
-
-static void window_unload(Window *window) {
+static void window_unload(Window *window)
+{
     text_layer_destroy(text_layer);
+	text_layer_destroy(wordsYouWrite);
+
+	for( uint8_t x = 0; x < 3; x++ )
+		for( uint8_t y = 0; y < 3; y++ )
+			text_layer_destroy( bbutons[ x ][ y ] );
+
+    window_destroy(window);
 }
 
 static void window_load(Window* window)
@@ -343,38 +334,32 @@ static void window_load(Window* window)
 
 }
 
-static void init(void) {
+void tertiary_text_prompt( const char* _title, TertiaryTextCallback _callback, void* _extra )
+{
+	title = _title;
+	extra = _extra;
+	callback = _callback;
+
+    bbuttons[0] = buttons1;
+    bbuttons[1] = buttons2;
+    bbuttons[2] = buttons3;
+
     window = window_create();
     
-    pos = persist_exists(NOTEPAD_CHAR_COUNT) ? persist_read_int(NOTEPAD_CHAR_COUNT) : 0;
-    
-    if (persist_exists(NOTEPAD_TEXT))
-        persist_read_string(NOTEPAD_TEXT, text_buffer, pos+1);
-    
     window_set_click_config_provider(window, click_config_provider);
+
     window_set_window_handlers(window, (WindowHandlers) {
         .load = window_load,
         .unload = window_unload,
     });
     
     const bool animated = true;
+
     window_stack_push(window, animated);
-}
 
-
-int main(void) {
-    bbuttons[0] = buttons1;
-    bbuttons[1] = buttons2;
-    bbuttons[2] = buttons3;
-    init();
-//    PebbleAppHandlers handlers = {
-//        .init_handler = &handle_init
-//    };
     change_set(1, true);
+
     next();
     drawSides();
     drawNotepadText();
-    
-    app_event_loop();
-    deinit();
 }
