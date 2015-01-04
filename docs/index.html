@@ -34,13 +34,15 @@
         
         <br><a name="download"></a>
         <h3>Download</h3>
-        <p>The official .pbw of Tertiary Text is available for SDK 2.0 <a href="tertiary_text_v2-0-1.pbw">here</a>. The application is called Pebble Notepad, and will allow you to take notes using only your Pebble. Data is stored persistently, and can be cleared by holding the middle button. The source code for it is also included below, so you can see how to work with and use Tertiary Text. An <a href="tertiary_text_v1-x.pbw">older</a> .pbw for SDK 1.x is also available.</p>
+        <p>Tertiary Text is designed as an implementable API. If you want to see it used in one of your favorite apps, pester the developer! That being said, a sample implmentation of Tertiary Text (.pbw) is available <a href="tertiary_text_v2-0-1.pbw">here</a>. The application is called Pebble Notepad, and will allow you to take notes using only your Pebble. Data is stored persistently, and can be cleared by holding the middle button. The source code for it is also included below, so you can see how to work with and use Tertiary Text. An <a href="tertiary_text_v1-x.pbw">older</a> .pbw for SDK 1.x is also available.</p>
         
         
         <br><a name="examples"></a>
         <h3>Examples</h3>
         <p>Developers have started incorporating Teriary Text with awesome results!<br>
         <ul>
+            <li>
+                <a href="https://play.google.com/store/apps/details?id=com.matejdro.pebblenotificationcenter">Notification Center</a> by <b>Matej dro</b></li>
             <li>
 		<a
 href="http://pblweb.com/appstore/532000f7237858d2500001b1/">Pebble
@@ -58,8 +60,17 @@ Balestra</b></li>
         <br><a name="source"></a>
         <h3>Source</h3>
         <p>The source is available on <a href="https://github.com/vgmoose/tertiary_text">github</a> and is licensed under the <a href="http://www.gnu.org/licenses/gpl-2.0.html">GPLv2 license</a>. Feel free to contribute or adjust any small features / bugs as you feel fit! Together we can all bring the most useful, attractive, and effective text input solution to the Pebble! Perhaps with time we could even gain some official attention from the Pebble dev team. ;)</p>
-        <p>An official API may be on its way in the future, but as for now it isn't so hard to look at the code and incoorperate it.</p>
-        
+        <p><strike>An official API may be on its way in the future, but as for now it isn't so hard to look at the code and incoorperate it.</strike> <b>Thank you <a href="https://github.com/tocsick">tocsick</a>!</b></p>
+
+<br><a name="api"></a>
+        <h3>Official API</h3>
+        <p>Tertiary Text can be easily invoked as a pop up window in your application by simply adding <a href="https://github.com/vgmoose/tertiary_text/tree/master/src">two files</a> to your existing application, and calling the <b>tertiary_text_prompt</b> function. After the text has been sent, your application will receive the input string via a callback function. More details on this is available in the <a href="https://github.com/vgmoose/tertiary_text#api">readme file</a>.</p>
+<p>A simple example of an application that logs the typed text is available <a href="https://github.com/vgmoose/tertiary_text/blob/master/src/main.c">here</a>. It will output the typed input to the log. For more information about Pebble logging, see <a href="http://developer.getpebble.com/docs/c/group___logging.html">here</a>.</p>
+       
+<br>
+<h3>FAQ</h3>
+        <p><b>Q</b>: Are you able to type space?<br /><b>A</b>: Space (" ") is able to be typed by hitting the middle button 3 times (between M and N)</p>
+
         <br><a name="contact"></a>
         <h3>Contact</h3>
         <p>You can contact me best at vgmoose [at] gmail.com. Thank you for checking out this project– any and all support is welcome. If you have suggestions/criticisms you can shoot me an email as well.
