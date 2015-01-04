@@ -18,6 +18,22 @@ Of course there are more than the 26 lower case letters that need to be typed, a
 
 ![Holding for more things](https://raw.github.com/vgmoose/tertiary_text/master/docs/pebuse.png)![Holding for more things](https://raw.github.com/vgmoose/tertiary_text/master/docs/pebcaps.png)![Holding for more things](https://raw.github.com/vgmoose/tertiary_text/master/docs/peblow.png)![Holding for more things](https://raw.github.com/vgmoose/tertiary_text/master/docs/pebnum.png)
 
+### API 
+Implementing Tertiary text is straightfoward. Simply add the **tertiary_text.h** and **tertiary_text.c** files from the **src** directory to your app's source directory, and add the following code in the file where you want to invoke it:
+```C
+#include "tertiary_text.h"
+```
+After this, Tertiary Text can be invoked via a pop-up window by using the following method:
+```C
+void tertiary_text_prompt( const char* title, TertiaryTextCallback callback, void* extra );
+```
+It takes a title for the window, as well as a callback as input. The callback function should be of the form:
+```C
+void(* TertiaryTextCallback)( const char* result, size_t result_length, void* extra );
+```
+
+For more detailed information on the API, check out [tertiary_text.h](https://github.com/vgmoose/tertiary_text/blob/master/src/tertiary_text.h). For a very simple example app, check out [main.c](https://github.com/vgmoose/tertiary_text/blob/master/src/main.c). It will log the typed text. More information about logging is available [here](http://developer.getpebble.com/docs/c/group___logging.html).
+
 ### Contributing
 I'm open to any and all contributions! I very much want Tertiary Text to
 become as easy-to-use as possible to allow any Pebble app to integrate their
@@ -28,6 +44,7 @@ change at all, feel free to make a pull request.
 Visit the offical project page [here](http://rickyayoub.com/pebble/) for official Tertiary Text downloads and .pbw files.
 
 ### Applications
+- [Notification Center](https://play.google.com/store/apps/details?id=com.matejdro.pebblenotificationcenter) by **Matej dro**
 - [Pebble Translator](http://pblweb.com/appstore/532000f7237858d2500001b1/) by [**Patrick Balestra**](http://www.patrickbalestra.com/)
 - [Pebble Communicator](https://play.google.com/store/apps/details?id=pt.joaopluis.communicator) by **João Luís**
 - [1.x] [Pebble Messenger](http://forums.getpebble.com/discussion/7954/android-pebble-messenger-whatsapp-sms-quick-responses-typing) by **maveok**
