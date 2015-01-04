@@ -1,51 +1,49 @@
-#include <pebble.h>
+#include "tertiary_text.h"
 
 #define TOP 0
 #define MID 1
 #define BOT 2
 
-#define NOTEPAD_TEXT 1
-#define NOTEPAD_CHAR_COUNT 2
-
 static Window* window;
 
+static TextLayer* text_title;
 static TextLayer* text_layer;
-static TextLayer* wordsYouWrite;
+static TextLayer* text_input;
 
 static TextLayer* buttons1[3];
 static TextLayer* buttons2[3];
 static TextLayer* buttons3[3];
 static TextLayer** bbuttons[3];
 
+static InverterLayer* inverter_side;
+
 static bool menu = false;
 
 // Here are the three cases, or sets
-static char caps[] =    "ABCDEFGHIJKLM NOPQRSTUVWXYZ";
-static char letters[] = "abcdefghijklm nopqrstuvwxyz";
-static char numsym[] = "1234567890!?-'\"$()&*+#:@/,.";
+static char caps[] =    	"ABCDEFGHIJKLM NOPQRSTUVWXYZ";
+static char letters[] = 	"abcdefghijklm nopqrstuvwxyz";
+static char numsym[] = 		"1234567890!?-'\"$()&*+#:@/,.";
 
 // the below three strings just have to be unique, abc - xyz will be overwritten with the long strings above
-static char* btext1[] = {"abc\0", "def\0", "ghi\0"};
-static char* btext2[] = {"jkl\0", "m n\0", "opq\0"};
-static char* btext3[] = {"rst\0", "uvw\0", "xyz\0"};
+static char* btext1[] = {"abc", "def", "ghi"};
+static char* btext2[] = {"jkl", "m n", "opq"};
+static char* btext3[] = {"rst", "uvw", "xyz"};
 static char** btexts[] = {btext1, btext2, btext3};
 
 // These are the actual sets that are displayed on each button, also need to be unique
-static char set1[4] = "  a\0";
-static char set2[4] = "  b\0";
-static char set3[4] = "  c\0";
+static char set1[4] = "  a";
+static char set2[4] = "  b";
+static char set3[4] = "  c";
 static char* setlist[] = {set1, set2, set3};
 
 static char* cases[] = {"CAP", "low", "#@1"};
 
 static int cur_set = 1;
-static bool blackout = false;
 
 static void drawSides();
 static void drawMenu();
 static void set_menu();
 static void drawNotepadText();
-
 
 static char* rotate_text[] = {caps, letters, numsym};
 static void next();
@@ -55,6 +53,12 @@ static char* master = letters;
 static char text_buffer[60];
 static int pos = 0;
 static int top, end, size;
+
+static const char* title;
+static void* extra;
+static TertiaryTextCallback callback;
+
+static const bool animated = true;
 
 // This function changes the next case/symbol set.
 static void change_set(int s, bool lock)
@@ -86,60 +90,50 @@ static void next()
     size = 27;
 }
 
-static void up_long_release_handler(ClickRecognizerRef recognizer, void *window) {}
-static void select_long_release_handler(ClickRecognizerRef recognizer, void *window) {}
-static void down_long_release_handler(ClickRecognizerRef recognizer, void *window) {}
-
 static void clickButton(int b)
 {
-    if (!blackout)
-    {
-        if (menu)
-        {
-            change_set(b, false);
-            return;
-        }
-        
-        if (size > 3)
-        {
-            size /= 3;
-            if (b == TOP)
-            end -= 2*size;
-            else if (b == MID)
-            {
-                top += size;
-                end -= size;
-            }
-            else if (b == BOT)
-            top += 2*size;
-        }
-        else
-        {
-            text_buffer[pos++] = master[top+b];
-            drawNotepadText();
-            change_set(cur_set, false);
-            next();
-        }
-        
-        drawSides();
-    }
-    
+	if (menu)
+	{
+		change_set(b, false);
+		return;
+	}
+
+	if (size > 3)
+	{
+		size /= 3;
+		if (b == TOP)
+			end -= 2*size;
+		else if (b == MID)
+		{
+			top += size;
+			end -= size;
+		}
+		else if (b == BOT)
+			top += 2*size;
+	}
+	else
+	{
+		text_buffer[pos++] = master[top+b];
+		drawNotepadText();
+		change_set(cur_set, false);
+		next();
+	}
+
+	drawSides();    
 }
 
-// Modify these common button handlers
-static void up_single_click_handler(ClickRecognizerRef recognizer, void* context) {
-    
+static void up_single_click_handler(ClickRecognizerRef recognizer, void* context)
+{
     clickButton(TOP);
-    
 }
 
-static void select_single_click_handler(ClickRecognizerRef recognizer, void* context) {
-    
+static void select_single_click_handler(ClickRecognizerRef recognizer, void* context)
+{
     clickButton(MID);
 }
 
-static void down_single_click_handler(ClickRecognizerRef recognizer, void* context) {
-    
+static void down_single_click_handler(ClickRecognizerRef recognizer, void* context)
+{
     clickButton(BOT);
 }
 
@@ -153,36 +147,23 @@ static bool common_long(int b)
     return false;
 }
 
-static void up_long_click_handler(ClickRecognizerRef recognizer, void* context) {
-    
+static void up_long_click_handler(ClickRecognizerRef recognizer, void* context)
+{
     if (common_long(TOP)) return;
     
     set_menu();
-    
 }
 
-static void select_long_click_handler(ClickRecognizerRef recognizer, void* context) {
+static void select_long_click_handler(ClickRecognizerRef recognizer, void* context)
+{   
+  if (common_long(MID)) return;
+  
+  // Close this window
+  window_stack_pop( animated );
     
-    if (common_long(MID)) return;
-    
-//    blackout = !blackout;
-//    
-//    if (blackout)
-//    text_layer_set_background_color(text_layer, GColorBlack);
-//    else
-//    text_layer_set_background_color(text_layer, GColorClear);
-    
-    // clear the string
-    pos = 0;
-    for (int i=0; i<60; i++)
-        text_buffer[i] = ' ';
-    
-    drawNotepadText();
-    change_set(cur_set, false);
-    
-    next();
-    drawSides();
-    
+  // Call user supplied callback with text_buffer
+  callback( text_buffer, strlen( text_buffer ), extra ); 
+
 }
 
 
@@ -191,8 +172,7 @@ static void down_long_click_handler(ClickRecognizerRef recognizer, void* context
     if (common_long(BOT)) return;
     
     // delete or cancel when back is held
-    
-    if (size==27 && pos>0 && !blackout)
+    if (size==27 && pos>0 )
     {
         text_buffer[--pos] = ' ';
         drawNotepadText();
@@ -207,25 +187,20 @@ static void down_long_click_handler(ClickRecognizerRef recognizer, void* context
 
 static void set_menu()
 {
-    if (!blackout)
-    {
-        menu = true;
-        drawMenu();
-    }
+	menu = true;
+	drawMenu();
 }
 
-// This usually won't need to be modified
-
-static void click_config_provider(void* context) {
-    
+static void click_config_provider(void* context)
+{
     window_single_click_subscribe(BUTTON_ID_UP, up_single_click_handler);
-    window_long_click_subscribe(BUTTON_ID_UP, 1000, up_long_click_handler, up_long_release_handler);
+    window_long_click_subscribe(BUTTON_ID_UP, 1000, up_long_click_handler, NULL);
     
     window_single_click_subscribe(BUTTON_ID_SELECT, select_single_click_handler);
-    window_long_click_subscribe(BUTTON_ID_SELECT, 1000, select_long_click_handler, select_long_release_handler);
+    window_long_click_subscribe(BUTTON_ID_SELECT, 1000, select_long_click_handler, NULL);
     
     window_single_click_subscribe(BUTTON_ID_DOWN, down_single_click_handler);
-    window_long_click_subscribe(BUTTON_ID_DOWN, 1000, down_long_click_handler, down_long_release_handler);
+    window_long_click_subscribe(BUTTON_ID_DOWN, 1000, down_long_click_handler, NULL);
 }
 
 static void drawMenu()
@@ -260,7 +235,6 @@ static void drawSides()
     }
     else if (size==9)   // second click
     {
-        
         for (int i=0; i<3; i++)
         {
             text_layer_set_text(bbuttons[i][i!=2], " ");
@@ -270,27 +244,39 @@ static void drawSides()
             text_layer_set_font(bbuttons[i][i==2], fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
         }
         
-    } else if (size == 3)
+    }
+		else if (size == 3)
     {
         for (int i=0; i<3; i++)
         {
             setlist[i][2] = master[top+i];
-            text_layer_set_text(bbuttons[i][i==2], setlist[i]);
-            
+            text_layer_set_text(bbuttons[i][i==2], setlist[i]);        
         }
     }
-    
 }
 
 static void initSidesAndText()
 {
-    Layer *window_layer = window_get_root_layer(window);
+		// Retrieve the window layer and its bounds
+    Layer *window_layer = window_get_root_layer(window); 
+		GRect bounds = layer_get_bounds(window_layer);
+	
+		// Create a text layer for the text that is typed
+    text_layer = text_layer_create((GRect) { .origin = { 0, 72 }, .size = { bounds.size.w, 20 } });
+    text_layer_set_font(text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+    layer_add_child(window_layer, text_layer_get_layer(text_layer));
+    
+		// Create a text layer for the title
+		text_title = text_layer_create( GRect( 5, 5, 100, 30 ) );
+		text_layer_set_font( text_title, fonts_get_system_font( FONT_KEY_GOTHIC_14_BOLD ) );
+		text_layer_set_text( text_title, title );
+		layer_add_child( window_layer, text_layer_get_layer( text_title ) );
+		
+    text_input = text_layer_create((GRect) { .origin = { 10, 40 }, .size = { 100, 150 } });
 
-    wordsYouWrite = text_layer_create((GRect) { .origin = { 10, 0 }, .size = { 100, 150 } });
-
-    text_layer_set_background_color(wordsYouWrite, GColorClear);
-    text_layer_set_font(wordsYouWrite, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
-    layer_add_child(window_layer, text_layer_get_layer(wordsYouWrite));
+    text_layer_set_background_color(text_input, GColorClear);
+    text_layer_set_font(text_input, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+    layer_add_child(window_layer, text_layer_get_layer(text_input));
     
     for (int i = 0; i<3; i++)
     {
@@ -298,83 +284,71 @@ static void initSidesAndText()
         buttons2[i] = text_layer_create((GRect) { .origin = { 115, 12*i+50 }, .size = { 100, 100 } });
         buttons3[i] = text_layer_create((GRect) { .origin = { 115, 12*i+100 }, .size = { 100, 100 } });
     }
+
+    for( int i=0; i<3; i++ )
+        for( int j=0; j<3; j++ )
+            layer_add_child( window_layer, text_layer_get_layer( bbuttons[i][j] ) );
     
-    for (int i=0; i<3; i++)
-        for (int j=0; j<3; j++)
-            layer_add_child(window_layer, text_layer_get_layer(bbuttons[i][j]));
-    
+		// Side inverter
+		inverter_side = inverter_layer_create( GRect( 110, 0, 34, 169 ) );
+		layer_add_child( window_layer, inverter_layer_get_layer( inverter_side ) );
 }
 
 static void drawNotepadText()
 {
-    text_layer_set_text(wordsYouWrite, text_buffer);
+    text_layer_set_text(text_input, text_buffer);
 }
 
-static void deinit(void) {
-    text_buffer[pos] = '\0';
-    persist_write_string(NOTEPAD_TEXT, text_buffer);
-    persist_write_int(NOTEPAD_CHAR_COUNT, pos);
-    
+static void window_unload(Window *window)
+{
+  text_layer_destroy(text_layer);
+	text_layer_destroy(text_input);
+	text_layer_destroy(text_title);
+	
+	inverter_layer_destroy( inverter_side );
+
+    for( int i=0; i<3; i++ )
+        for( int j=0; j<3; j++ )
+			text_layer_destroy( bbuttons[ i ][ j ] );
+
     window_destroy(window);
-}
-
-static void window_unload(Window *window) {
-    text_layer_destroy(text_layer);
 }
 
 static void window_load(Window* window)
 {
-    Layer *window_layer = window_get_root_layer(window);
-    GRect bounds = layer_get_bounds(window_layer);
-
-    text_layer = text_layer_create((GRect) { .origin = { 0, 72 }, .size = { bounds.size.w, 20 } });
-
-    //  text_layer_set_text(&textLayer, text_buffer);
-//    text_layer_set_background_color(&textLayer, GColorClear);
-    
-    text_layer_set_font(text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
-    layer_add_child(window_layer, text_layer_get_layer(text_layer));
-    
     initSidesAndText();
     drawSides();
-    
-    // Attach our desired button functionality
-//    window_set_click_config_provider(&window, (ClickConfigProvider) click_config_provider);
-
+    drawNotepadText();
 }
 
-static void init(void) {
+void tertiary_text_prompt( const char* _title, TertiaryTextCallback _callback, void* _extra )
+{
+		// Store the arguments for later
+		title = _title;
+		extra = _extra;
+		callback = _callback;
+
+		// Setup the button arrays
+    bbuttons[0] = buttons1;
+    bbuttons[1] = buttons2;
+    bbuttons[2] = buttons3;
+
+		// Create and configure the window
     window = window_create();
-    
-    pos = persist_exists(NOTEPAD_CHAR_COUNT) ? persist_read_int(NOTEPAD_CHAR_COUNT) : 0;
-    
-    if (persist_exists(NOTEPAD_TEXT))
-        persist_read_string(NOTEPAD_TEXT, text_buffer, pos+1);
-    
+		window_set_fullscreen( window, true );
     window_set_click_config_provider(window, click_config_provider);
+
     window_set_window_handlers(window, (WindowHandlers) {
         .load = window_load,
         .unload = window_unload,
     });
     
-    const bool animated = true;
-    window_stack_push(window, animated);
-}
-
-
-int main(void) {
-    bbuttons[0] = buttons1;
-    bbuttons[1] = buttons2;
-    bbuttons[2] = buttons3;
-    init();
-//    PebbleAppHandlers handlers = {
-//        .init_handler = &handle_init
-//    };
+		// Default to lowercase letters
     change_set(1, true);
+
+		// Initiate the character position and update the text layers
     next();
-    drawSides();
-    drawNotepadText();
-    
-    app_event_loop();
-    deinit();
+
+	// Push the window onto the stack
+    window_stack_push(window, animated);
 }
