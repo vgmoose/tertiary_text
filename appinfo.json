@@ -1,17 +1,19 @@
 {
-  "uuid": "71bbdcbd-edb1-44ad-ba39-4db5bd5ee569",
-  "shortName": "tertiary_text",
-  "longName": "Tertiary Text",
-  "companyName": "VGMoose",
-  "versionCode": 2,
-  "versionLabel": "2.0.0",
-  "watchapp": {
-    "watchface": false
-  },
-  "appKeys": {
-    "dummy": 0
-  },
-  "resources": {
-    "media": []
-  }
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "VGMoose",
+    "longName": "Tertiary Text",
+    "projectType": "native",
+    "resources": {
+        "media": []
+    },
+    "shortName": "tertiary_text",
+    "uuid": "71bbdcbd-edb1-44ad-ba39-4db5bd5ee569",
+    "versionCode": 2,
+    "versionLabel": "3.0",
+    "watchapp": {
+        "watchface": false
+    }
 }
