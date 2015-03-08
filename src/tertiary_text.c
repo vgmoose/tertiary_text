@@ -1,4 +1,8 @@
 #include "tertiary_text.h"
+ 
+// Max text limit in characters
+// You may adjust this to allow longer messages
+#define MAX_CHARS 60
 
 #define TOP 0
 #define MID 1
@@ -50,7 +54,7 @@ static void next();
 
 static char* master = letters;
 
-static char text_buffer[60];
+static char text_buffer[MAX_CHARS];
 static int pos = 0;
 static int top, end, size;
 
@@ -113,6 +117,11 @@ static void clickButton(int b)
 	}
 	else
 	{
+    // Prevent overflowing
+    if (pos == MAX_CHARS-1)
+      pos--;
+    
+    // Type the character
 		text_buffer[pos++] = master[top+b];
 		drawNotepadText();
 		change_set(cur_set, false);
@@ -255,8 +264,18 @@ static void drawSides()
     }
 }
 
+static void clearText()
+{
+    for (int i=0; i<MAX_CHARS; i++)
+        text_buffer[i] = '\0';
+    pos = 0;
+}
+
 static void initSidesAndText()
 {
+    // Make sure the text is cleared on the first launch
+    clearText();
+  
 		// Retrieve the window layer and its bounds
     Layer *window_layer = window_get_root_layer(window); 
 		GRect bounds = layer_get_bounds(window_layer);
@@ -310,8 +329,8 @@ static void window_unload(Window *window)
     for( int i=0; i<3; i++ )
         for( int j=0; j<3; j++ )
 			text_layer_destroy( bbuttons[ i ][ j ] );
-
-    window_destroy(window);
+  
+  window_destroy(window);
 }
 
 static void window_load(Window* window)
@@ -323,12 +342,12 @@ static void window_load(Window* window)
 
 void tertiary_text_prompt( const char* _title, TertiaryTextCallback _callback, void* _extra )
 {
-		// Store the arguments for later
-		title = _title;
-		extra = _extra;
-		callback = _callback;
+	// Store the arguments for later
+	title = _title;
+	extra = _extra;
+	callback = _callback;
 
-		// Setup the button arrays
+	// Setup the button arrays
     bbuttons[0] = buttons1;
     bbuttons[1] = buttons2;
     bbuttons[2] = buttons3;
