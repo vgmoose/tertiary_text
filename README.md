@@ -50,3 +50,5 @@ Visit the offical project page [here](http://vgmoose.com/pebble/) for official T
 - [1.x] [Pebble Messenger](http://forums.getpebble.com/discussion/7954/android-pebble-messenger-whatsapp-sms-quick-responses-typing) by **maveok**
 - [1.x] [Formula Calculator](http://forums.getpebble.com/discussion/5285/watch-app-formula-calculator) by **moridh**
 
+### License
+Tertiary Text is licensed under the [MIT License](https://github.com/vgmoose/tertiary_text/blob/master/LICENSE.txt).
